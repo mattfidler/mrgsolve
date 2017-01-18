@@ -191,7 +191,7 @@ void odeproblem::init_call(const double& time) {
  */
 void odeproblem::init_call_record(const double& time) {
   d.time = time;
-  Inits(Init_dummy,Y,Param,F,Alag,R,D,d,pred,simeta);
+  Inits(Init_dummy,Y+1,Param,F,Alag,R,D,d,pred,simeta);
 }
 
 
@@ -199,7 +199,7 @@ void odeproblem::init_call_record(const double& time) {
  * 
  */
 void odeproblem::table_call() {
-  Table(Y,Init_dummy,Param,F,R,d,pred,Capture,simeps);  
+  Table(Y+1,Init_dummy,Param,F,R,d,pred,Capture,simeps);  
 }
 
 void odeproblem::config_call() {
@@ -310,10 +310,7 @@ void odeproblem::advance(double tfrom, double tto) {
     // If Advan isn't 13, it needs to be 1/2/3/4
     Rcpp::stop("mrgsolve: advan has invalid value.");
   }
-  // void lsoda(_lsoda_f f, int neq, double *y, double *t, double tout, int itol, double *rtol, double *atol,
-  //            int itask, int *istate, int iopt, int jt,
-  //            int iwork1, int iwork2, int iwork5, int iwork6, int iwork7, int iwork8, int iwork9,
-  //            double rwork1, double rwork5, double rwork6, double rwork7, void *_data)
+
   lsoda(main_derivs, 
         Neq, 
         Y, 

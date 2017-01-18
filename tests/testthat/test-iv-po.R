@@ -42,6 +42,8 @@ test_that("The simulation model can be recovered from output", {
 test_that("CP from oral model is identical to closed form result", {
     expect_true(all(comparepo ==out$CP))
 })
+
+
 test_that("CP from iv model is identical to closed form result", {
     expect_true(all(compareiv == outiv$CP))
 })

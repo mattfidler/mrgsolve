@@ -17,10 +17,10 @@ end=111, delta=1.1, hmax=10, maxsteps=22334
 
 $GLOBAL
 #define CP (CENT/VC)
-double KE = 0;
+
 
 $MAIN
-KE = CL/VC;
+double KE = CL/VC;
 
 $ODE
 dxdt_GUT = -KA*GUT;
@@ -100,8 +100,35 @@ test_that("Sigma matrices are properly parsed", {
 
 set.seed(8282)
 
+code <- '
+$PARAM CL=1, VC=20, KA=1.2, VMAX=2, KM=3
+
+$INIT GUT=100, CENT=5
+
+$GLOBAL
+#define CP (CENT/VC)
+
+$MAIN
+double KE = CL/VC;
+
+$ODE
+dxdt_GUT = -KA*GUT;
+dxdt_CENT = KA*GUT - KE*CENT;
+
+$TABLE
+double EPS1 = EPS(1);
+
+$CAPTURE EPS1
+
+$SIGMA
+0.55
+
+'
+
+modd <- suppressWarnings(mcode("test2d",code, warn=FALSE))
+
 test_that("EPS values have proper variance", {
-  out <- mrgsim(mod,end=100000, delta=1)
+  out <- mrgsim(modd,end=100000, delta=1)
   expect_equal(round(var(out$EPS1),2),0.55)
 })
 
