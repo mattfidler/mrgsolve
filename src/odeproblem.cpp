@@ -310,43 +310,25 @@ void odeproblem::advance(double tfrom, double tto) {
     // If Advan isn't 13, it needs to be 1/2/3/4
     Rcpp::stop("mrgsolve: advan has invalid value.");
   }
-  
+  // void lsoda(_lsoda_f f, int neq, double *y, double *t, double tout, int itol, double *rtol, double *atol,
+  //            int itask, int *istate, int iopt, int jt,
+  //            int iwork1, int iwork2, int iwork5, int iwork6, int iwork7, int iwork8, int iwork9,
+  //            double rwork1, double rwork5, double rwork6, double rwork7, void *_data)
   lsoda(main_derivs, 
         Neq, 
         Y, 
         &tfrom, 
         tto, 
         xitol, 
-        &xrtol, 
-        &xatol, 
+        xrtol, 
+        xatol, 
         xitask, 
         &xistate, 
         xiopt, 
         xjt,
         iwork1, iwork2, iwork5, iwork6, iwork7, iwork8, iwork9,
         rwork1, rwork5, rwork6, rwork7, reinterpret_cast<void*>(this));
-  // 
-  // F77_CALL(dlsoda)(
-  //     &main_derivs,
-  //     &Neq,
-  //     Y,
-  //     &tfrom,
-  //     &tto,
-  //     &xitol,
-  //     &xrtol,
-  //     &xatol,
-  //     &xitask,
-  //     &xistate,
-  //     &xiopt,
-  //     xrwork,
-  //     &xlrwork,
-  //     xiwork,
-  //     &xliwork,
-  //     &Neq,
-  //     &xjt,
-  //     this
-  // );
-  
+
   this->call_derivs(&Neq, &tto, Y, Ydot);
 }
 

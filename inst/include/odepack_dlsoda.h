@@ -38,6 +38,7 @@ public:
   
   int     npar() {return Npar;}
   int     neq(){return Neq;}
+
   
 protected :
 
@@ -48,7 +49,9 @@ protected :
   int     xitask,xiopt,xitol;
   int     Neq, Npar;
   int     xjt;
-  double  xatol, xrtol;
+
+  double xatol[2];
+  double xrtol[2];
 
   double* Y;
   double* Ydot;
