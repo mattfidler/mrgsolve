@@ -1,3 +1,4 @@
+#include <R.h>
 /*
   This is a C version of the LSODA library. I acquired the original
   source code from this web page:
@@ -677,7 +678,8 @@ static int     *ipvt;
 static void terminate(int *istate)
 {
 	if (illin == 5) {
-		fprintf(stderr, "[lsoda] repeated occurrence of illegal input. run aborted.. apparent infinite loop\n");
+		//fprintf(stderr, "[lsoda] repeated occurrence of illegal input. run aborted.. apparent infinite loop\n");
+	  REprintf("[lsoda] repeated occurrence of illegal input. run aborted.. apparent infinite loop\n");
 	} else {
 		illin++;
 		*istate = -3;
@@ -896,17 +898,17 @@ lsoda(f, neq, y, t, tout, itol, rtol, atol, itask, istate,
 */
 
 	if (*istate < 1 || *istate > 3) {
-		fprintf(stderr, "[lsoda] illegal istate = %d\n", *istate);
+		REprintf( "[lsoda] illegal istate = %d\n", *istate);
 		terminate(istate);
 		return;
 	}
 	if (itask < 1 || itask > 5) {
-		fprintf(stderr, "[lsoda] illegal itask = %d\n", itask);
+		REprintf( "[lsoda] illegal itask = %d\n", itask);
 		terminate(istate);
 		return;
 	}
 	if (init == 0 && (*istate == 2 || *istate == 3)) {
-		fprintf(stderr, "[lsoda] istate > 1 but lsoda not initialized\n");
+		REprintf( "[lsoda] istate > 1 but lsoda not initialized\n");
 		terminate(istate);
 		return;
 	}
@@ -915,7 +917,7 @@ lsoda(f, neq, y, t, tout, itol, rtol, atol, itask, istate,
 		if (tout == *t) {
 			ntrep++;
 			if (ntrep < 5) return;
-			fprintf(stderr, "[lsoda] repeated calls with istate = 1 and tout = t. run aborted.. apparent infinite loop\n");
+			REprintf( "[lsoda] repeated calls with istate = 1 and tout = t. run aborted.. apparent infinite loop\n");
 			return;
 		}
 	}
@@ -932,28 +934,28 @@ lsoda(f, neq, y, t, tout, itol, rtol, atol, itask, istate,
 	if (*istate == 1 || *istate == 3) {
 		ntrep = 0;
 		if (neq <= 0) {
-			fprintf(stderr, "[lsoda] neq = %d is less than 1\n", neq);
+			REprintf( "[lsoda] neq = %d is less than 1\n", neq);
 			terminate(istate);
 			return;
 		}
 		if (*istate == 3 && neq > n) {
-			fprintf(stderr, "[lsoda] istate = 3 and neq increased\n");
+			REprintf( "[lsoda] istate = 3 and neq increased\n");
 			terminate(istate);
 			return;
 		}
 		n = neq;
 		if (itol < 1 || itol > 4) {
-			fprintf(stderr, "[lsoda] itol = %d illegal\n", itol);
+			REprintf( "[lsoda] itol = %d illegal\n", itol);
 			terminate(istate);
 			return;
 		}
 		if (iopt < 0 || iopt > 1) {
-			fprintf(stderr, "[lsoda] iopt = %d illegal\n", iopt);
+			REprintf( "[lsoda] iopt = %d illegal\n", iopt);
 			terminate(istate);
 			return;
 		}
 		if (jt == 3 || jt < 1 || jt > 5) {
-			fprintf(stderr, "[lsoda] jt = %d illegal\n", jt);
+			REprintf( "[lsoda] jt = %d illegal\n", jt);
 			terminate(istate);
 			return;
 		}
@@ -962,12 +964,12 @@ lsoda(f, neq, y, t, tout, itol, rtol, atol, itask, istate,
 			ml = iwork1;
 			mu = iwork2;
 			if (ml < 0 || ml >= n) {
-				fprintf(stderr, "[lsoda] ml = %d not between 1 and neq\n", ml);
+				REprintf( "[lsoda] ml = %d not between 1 and neq\n", ml);
 				terminate(istate);
 				return;
 			}
 			if (mu < 0 || mu >= n) {
-				fprintf(stderr, "[lsoda] mu = %d not between 1 and neq\n", mu);
+				REprintf( "[lsoda] mu = %d not between 1 and neq\n", mu);
 				terminate(istate);
 				return;
 			}
@@ -993,20 +995,20 @@ lsoda(f, neq, y, t, tout, itol, rtol, atol, itask, istate,
 		else {		/* if ( iopt = 1 )  */
 			ixpr = iwork5;
 			if (ixpr < 0 || ixpr > 1) {
-				fprintf(stderr, "[lsoda] ixpr = %d is illegal\n", ixpr);
+				REprintf( "[lsoda] ixpr = %d is illegal\n", ixpr);
 				terminate(istate);
 				return;
 			}
 			mxstep = iwork6;
 			if (mxstep < 0) {
-				fprintf(stderr, "[lsoda] mxstep < 0\n");
+				REprintf( "[lsoda] mxstep < 0\n");
 				terminate(istate);
 				return;
 			}
 			if (mxstep == 0) mxstep = mxstp0;
 			mxhnil = iwork7;
 			if (mxhnil < 0) {
-				fprintf(stderr, "[lsoda] mxhnil < 0\n");
+				REprintf( "[lsoda] mxhnil < 0\n");
 				terminate(istate);
 				return;
 			}
@@ -1014,7 +1016,7 @@ lsoda(f, neq, y, t, tout, itol, rtol, atol, itask, istate,
 				h0 = rwork5;
 				mxordn = iwork8;
 				if (mxordn < 0) {
-					fprintf(stderr, "[lsoda] mxordn = %d is less than 0\n", mxordn);
+					REprintf( "[lsoda] mxordn = %d is less than 0\n", mxordn);
 					terminate(istate);
 					return;
 				}
@@ -1022,14 +1024,14 @@ lsoda(f, neq, y, t, tout, itol, rtol, atol, itask, istate,
 				mxordn = min(mxordn, mord[1]);
 				mxords = iwork9;
 				if (mxords < 0) {
-					fprintf(stderr, "[lsoda] mxords = %d is less than 0\n", mxords);
+					REprintf( "[lsoda] mxords = %d is less than 0\n", mxords);
 					terminate(istate);
 					return;
 				}
 				if (mxords == 0) mxords = 100;
 				mxords = min(mxords, mord[2]);
 				if ((tout - *t) * h0 < 0.) {
-					fprintf(stderr, "[lsoda] tout = %g behind t = %g. integration direction is given by %g\n",
+					REprintf( "[lsoda] tout = %g behind t = %g. integration direction is given by %g\n",
 							tout, *t, h0);
 					terminate(istate);
 					return;
@@ -1037,7 +1039,7 @@ lsoda(f, neq, y, t, tout, itol, rtol, atol, itask, istate,
 			}	/* end if ( *istate == 1 )  */
 			hmax = rwork6;
 			if (hmax < 0.) {
-				fprintf(stderr, "[lsoda] hmax < 0.\n");
+				REprintf( "[lsoda] hmax < 0.\n");
 				terminate(istate);
 				return;
 			}
@@ -1046,7 +1048,7 @@ lsoda(f, neq, y, t, tout, itol, rtol, atol, itask, istate,
 				hmxi = 1. / hmax;
 			hmin = rwork7;
 			if (hmin < 0.) {
-				fprintf(stderr, "[lsoda] hmin < 0.\n");
+				REprintf( "[lsoda] hmin < 0.\n");
 				terminate(istate);
 				return;
 			}
@@ -1069,7 +1071,7 @@ lsoda(f, neq, y, t, tout, itol, rtol, atol, itask, istate,
 
 		yh = (double **) calloc(1 + lenyh, sizeof(*yh));
 		if (yh == NULL) {
-			printf("lsoda -- insufficient memory for your problem\n");
+			Rprintf("lsoda -- insufficient memory for your problem\n");
 			terminate(istate);
 			return;
 		}
@@ -1079,7 +1081,7 @@ lsoda(f, neq, y, t, tout, itol, rtol, atol, itask, istate,
 		wm = (double **) calloc(1 + nyh, sizeof(*wm));
 		if (wm == NULL) {
 			free(yh);
-			printf("lsoda -- insufficient memory for your problem\n");
+			Rprintf("lsoda -- insufficient memory for your problem\n");
 			terminate(istate);
 			return;
 		}
@@ -1090,7 +1092,7 @@ lsoda(f, neq, y, t, tout, itol, rtol, atol, itask, istate,
 		if (ewt == NULL) {
 			free(yh);
 			free(wm);
-			printf("lsoda -- insufficient memory for your problem\n");
+			Rprintf("lsoda -- insufficient memory for your problem\n");
 			terminate(istate);
 			return;
 		}
@@ -1099,7 +1101,7 @@ lsoda(f, neq, y, t, tout, itol, rtol, atol, itask, istate,
 			free(yh);
 			free(wm);
 			free(ewt);
-			printf("lsoda -- insufficient memory for your problem\n");
+			Rprintf("lsoda -- insufficient memory for your problem\n");
 			terminate(istate);
 			return;
 		}
@@ -1109,7 +1111,7 @@ lsoda(f, neq, y, t, tout, itol, rtol, atol, itask, istate,
 			free(wm);
 			free(ewt);
 			free(savf);
-			printf("lsoda -- insufficient memory for your problem\n");
+			Rprintf("lsoda -- insufficient memory for your problem\n");
 			terminate(istate);
 			return;
 		}
@@ -1120,7 +1122,7 @@ lsoda(f, neq, y, t, tout, itol, rtol, atol, itask, istate,
 			free(ewt);
 			free(savf);
 			free(acor);
-			printf("lsoda -- insufficient memory for your problem\n");
+			Rprintf("lsoda -- insufficient memory for your problem\n");
 			terminate(istate);
 			return;
 		}
@@ -1137,13 +1139,13 @@ lsoda(f, neq, y, t, tout, itol, rtol, atol, itask, istate,
 			if (itol == 2 || itol == 4)
 				atoli = atol[i];
 			if (rtoli < 0.) {
-				fprintf(stderr, "[lsoda] rtol = %g is less than 0.\n", rtoli);
+				REprintf( "[lsoda] rtol = %g is less than 0.\n", rtoli);
 				terminate(istate);
 				freevectors();
 				return;
 			}
 			if (atoli < 0.) {
-				fprintf(stderr, "[lsoda] atol = %g is less than 0.\n", atoli);
+				REprintf( "[lsoda] atol = %g is less than 0.\n", atoli);
 				terminate(istate);
 				freevectors();
 				return;
@@ -1170,7 +1172,7 @@ lsoda(f, neq, y, t, tout, itol, rtol, atol, itask, istate,
 		if (itask == 4 || itask == 5) {
 			tcrit = rwork1;
 			if ((tcrit - tout) * (tout - *t) < 0.) {
-				fprintf(stderr, "[lsoda] itask = 4 or 5 and tcrit behind tout\n");
+				REprintf( "[lsoda] itask = 4 or 5 and tcrit behind tout\n");
 				terminate(istate);
 				freevectors();
 				return;
@@ -1210,7 +1212,7 @@ lsoda(f, neq, y, t, tout, itol, rtol, atol, itask, istate,
 		ewset(itol, rtol, atol, y);
 		for (i = 1; i <= n; i++) {
 			if (ewt[i] <= 0.) {
-				fprintf(stderr, "[lsoda] ewt[%d] = %g <= 0.\n", i, ewt[i]);
+				REprintf( "[lsoda] ewt[%d] = %g <= 0.\n", i, ewt[i]);
 				terminate2(y, t);
 				return;
 			}
@@ -1241,7 +1243,7 @@ lsoda(f, neq, y, t, tout, itol, rtol, atol, itask, istate,
 			tdist = fabs(tout - *t);
 			w0 = max(fabs(*t), fabs(tout));
 			if (tdist < 2. * ETA * w0) {
-				fprintf(stderr, "[lsoda] tout too close to t to start integration\n ");
+				REprintf( "[lsoda] tout too close to t to start integration\n ");
 				terminate(istate);
 				freevectors();
 				return;
@@ -1295,7 +1297,7 @@ lsoda(f, neq, y, t, tout, itol, rtol, atol, itask, istate,
 			if ((tn - tout) * h >= 0.) {
 				intdy(tout, 0, y, &iflag);
 				if (iflag != 0) {
-					fprintf(stderr, "[lsoda] trouble from intdy, itask = %d, tout = %g\n", itask, tout);
+					REprintf( "[lsoda] trouble from intdy, itask = %d, tout = %g\n", itask, tout);
 					terminate(istate);
 					freevectors();
 					return;
@@ -1312,7 +1314,7 @@ lsoda(f, neq, y, t, tout, itol, rtol, atol, itask, istate,
 		case 3:
 			tp = tn - hu * (1. + 100. * ETA);
 			if ((tp - tout) * h > 0.) {
-				fprintf(stderr, "[lsoda] itask = %d and tout behind tcur - hu\n", itask);
+				REprintf( "[lsoda] itask = %d and tout behind tcur - hu\n", itask);
 				terminate(istate);
 				freevectors();
 				return;
@@ -1323,13 +1325,13 @@ lsoda(f, neq, y, t, tout, itol, rtol, atol, itask, istate,
 		case 4:
 			tcrit = rwork1;
 			if ((tn - tcrit) * h > 0.) {
-				fprintf(stderr, "[lsoda] itask = 4 or 5 and tcrit behind tcur\n");
+				REprintf( "[lsoda] itask = 4 or 5 and tcrit behind tcur\n");
 				terminate(istate);
 				freevectors();
 				return;
 			}
 			if ((tcrit - tout) * h < 0.) {
-				fprintf(stderr, "[lsoda] itask = 4 or 5 and tcrit behind tout\n");
+				REprintf( "[lsoda] itask = 4 or 5 and tcrit behind tout\n");
 				terminate(istate);
 				freevectors();
 				return;
@@ -1337,7 +1339,7 @@ lsoda(f, neq, y, t, tout, itol, rtol, atol, itask, istate,
 			if ((tn - tout) * h >= 0.) {
 				intdy(tout, 0, y, &iflag);
 				if (iflag != 0) {
-					fprintf(stderr, "[lsoda] trouble from intdy, itask = %d, tout = %g\n", itask, tout);
+					REprintf( "[lsoda] trouble from intdy, itask = %d, tout = %g\n", itask, tout);
 					terminate(istate);
 					freevectors();
 					return;
@@ -1352,7 +1354,7 @@ lsoda(f, neq, y, t, tout, itol, rtol, atol, itask, istate,
 			if (itask == 5) {
 				tcrit = rwork1;
 				if ((tn - tcrit) * h > 0.) {
-					fprintf(stderr, "[lsoda] itask = 4 or 5 and tcrit behind tcur\n");
+					REprintf( "[lsoda] itask = 4 or 5 and tcrit behind tcur\n");
 					terminate(istate);
 					freevectors();
 					return;
@@ -1388,7 +1390,7 @@ lsoda(f, neq, y, t, tout, itol, rtol, atol, itask, istate,
 	while (1) {
 		if (*istate != 1 || nst != 0) {
 			if ((nst - nslast) >= mxstep) {
-				fprintf(stderr, "[lsoda] %d steps taken before reaching tout\n", mxstep);
+				REprintf( "[lsoda] %d steps taken before reaching tout\n", mxstep);
 				*istate = -1;
 				terminate2(y, t);
 				return;
@@ -1396,7 +1398,7 @@ lsoda(f, neq, y, t, tout, itol, rtol, atol, itask, istate,
 			ewset(itol, rtol, atol, yh[1]);
 			for (i = 1; i <= n; i++) {
 				if (ewt[i] <= 0.) {
-					fprintf(stderr, "[lsoda] ewt[%d] = %g <= 0.\n", i, ewt[i]);
+					REprintf( "[lsoda] ewt[%d] = %g <= 0.\n", i, ewt[i]);
 					*istate = -6;
 					terminate2(y, t);
 					return;
@@ -1408,16 +1410,16 @@ lsoda(f, neq, y, t, tout, itol, rtol, atol, itask, istate,
 		if (tolsf > 0.01) {
 			tolsf = tolsf * 200.;
 			if (nst == 0) {
-				fprintf(stderr, "lsoda -- at start of problem, too much accuracy\n");
-				fprintf(stderr, "         requested for precision of machine,\n");
-				fprintf(stderr, "         suggested scaling factor = %g\n", tolsf);
+				REprintf( "lsoda -- at start of problem, too much accuracy\n");
+				REprintf( "         requested for precision of machine,\n");
+				REprintf( "         suggested scaling factor = %g\n", tolsf);
 				terminate(istate);
 				freevectors();
 				return;
 			}
-			fprintf(stderr, "lsoda -- at t = %g, too much accuracy requested\n", *t);
-			fprintf(stderr, "         for precision of machine, suggested\n");
-			fprintf(stderr, "         scaling factor = %g\n", tolsf);
+			REprintf( "lsoda -- at t = %g, too much accuracy requested\n", *t);
+			REprintf( "         for precision of machine, suggested\n");
+			REprintf( "         scaling factor = %g\n", tolsf);
 			*istate = -2;
 			terminate2(y, t);
 			return;
@@ -1425,12 +1427,12 @@ lsoda(f, neq, y, t, tout, itol, rtol, atol, itask, istate,
 		if ((tn + h) == tn) {
 			nhnil++;
 			if (nhnil <= mxhnil) {
-				fprintf(stderr, "lsoda -- warning..internal t = %g and h = %g are\n", tn, h);
-				fprintf(stderr, "         such that in the machine, t + h = t on the next step\n");
-				fprintf(stderr, "         solver will continue anyway.\n");
+				REprintf( "lsoda -- warning..internal t = %g and h = %g are\n", tn, h);
+				REprintf( "         such that in the machine, t + h = t on the next step\n");
+				REprintf( "         solver will continue anyway.\n");
 				if (nhnil == mxhnil) {
-					fprintf(stderr, "lsoda -- above warning has been issued %d times,\n", nhnil);
-					fprintf(stderr, "         it will not be issued again for this problem\n");
+					REprintf( "lsoda -- above warning has been issued %d times,\n", nhnil);
+					REprintf( "         it will not be issued again for this problem\n");
 				}
 			}
 		}
@@ -1440,10 +1442,10 @@ lsoda(f, neq, y, t, tout, itol, rtol, atol, itask, istate,
 		stoda(neq, y, f, _data);
 
 /*
-   printf( "meth= %d,   order= %d,   nfe= %d,   nje= %d\n",
+   Rprintf( "meth= %d,   order= %d,   nfe= %d,   nje= %d\n",
       meth, nq, nfe, nje );
-   printf( "t= %20.15e,   h= %20.15e,   nst=%d\n", tn, h, nst );
-   printf( "y= %20.15e,   %20.15e,   %20.15e\n\n\n",
+   Rprintf( "t= %20.15e,   h= %20.15e,   nst=%d\n", tn, h, nst );
+   Rprintf( "y= %20.15e,   %20.15e,   %20.15e\n\n\n",
       yh[1][1], yh[1][2], yh[1][3] );
 */
 
@@ -1466,10 +1468,10 @@ lsoda(f, neq, y, t, tout, itol, rtol, atol, itask, istate,
 				jstart = -1;
 				if (ixpr) {
 					if (meth == 2)
-						fprintf(stderr, "[lsoda] a switch to the stiff method has occurred ");
+						REprintf( "[lsoda] a switch to the stiff method has occurred ");
 					if (meth == 1)
-						fprintf(stderr, "[lsoda] a switch to the nonstiff method has occurred");
-					fprintf(stderr, "at t = %g, tentative step size h = %g, step nst = %d\n", tn, h, nst);
+						REprintf( "[lsoda] a switch to the nonstiff method has occurred");
+					REprintf( "at t = %g, tentative step size h = %g, step nst = %d\n", tn, h, nst);
 				}
 			}	/* end if ( meth != mused )   */
 			/*
@@ -1547,15 +1549,15 @@ lsoda(f, neq, y, t, tout, itol, rtol, atol, itask, istate,
 		   kflag = -2, convergence failed repeatedly or with fabs(h) = hmin.
 		*/
 		if (kflag == -1 || kflag == -2) {
-			fprintf(stderr, "lsoda -- at t = %g and step size h = %g, the\n", tn, h);
+			REprintf( "lsoda -- at t = %g and step size h = %g, the\n", tn, h);
 			if (kflag == -1) {
-				fprintf(stderr, "         error test failed repeatedly or\n");
-				fprintf(stderr, "         with fabs(h) = hmin\n");
+				REprintf( "         error test failed repeatedly or\n");
+				REprintf( "         with fabs(h) = hmin\n");
 				*istate = -4;
 			}
 			if (kflag == -2) {
-				fprintf(stderr, "         corrector convergence failed repeatedly or\n");
-				fprintf(stderr, "         with fabs(h) = hmin\n");
+				REprintf( "         corrector convergence failed repeatedly or\n");
+				REprintf( "         with fabs(h) = hmin\n");
 				*istate = -5;
 			}
 			big = 0.;
@@ -1972,13 +1974,13 @@ static void intdy(double t, int k, double *dky, int *iflag)
 
 	*iflag = 0;
 	if (k < 0 || k > nq) {
-		fprintf(stderr, "[intdy] k = %d illegal\n", k);
+		REprintf( "[intdy] k = %d illegal\n", k);
 		*iflag = -1;
 		return;
 	}
 	tp = tn - hu - 100. * ETA * (tn + hu);
 	if ((t - tp) * (t - tn) > 0.) {
-		fprintf(stderr, "intdy -- t = %g illegal. t not in interval tcur - hu to tcur\n", t);
+		REprintf( "intdy -- t = %g illegal. t not in interval tcur - hu to tcur\n", t);
 		*iflag = -2;
 		return;
 	}
@@ -2199,7 +2201,7 @@ static void prja(int neq, double *y, _lsoda_f f, void *_data)
    If miter = 2, make n calls to f to approximate J.
 */
 	if (miter != 2) {
-		fprintf(stderr, "[prja] miter != 2\n");
+		REprintf( "[prja] miter != 2\n");
 		return;
 	}
 	if (miter == 2) {
@@ -2474,7 +2476,7 @@ static void solsy(double *y)
 {
 	iersl = 0;
 	if (miter != 2) {
-		printf("solsy -- miter != 2\n");
+		Rprintf("solsy -- miter != 2\n");
 		return;
 	}
 	if (miter == 2)
@@ -2839,9 +2841,9 @@ int main(void)
 		lsoda(fex, neq, y, &t, tout, itol, rtol, atol, itask, &istate, iopt, jt,
 		      iwork1, iwork2, iwork5, iwork6, iwork7, iwork8, iwork9,
 		      rwork1, rwork5, rwork6, rwork7, 0);
-		printf(" at t= %12.4e y= %14.6e %14.6e %14.6e\n", t, y[1], y[2], y[3]);
+		//printf(" at t= %12.4e y= %14.6e %14.6e %14.6e\n", t, y[1], y[2], y[3]);
 		if (istate <= 0) {
-			printf("error istate = %d\n", istate);
+			//printf("error istate = %d\n", istate);
 			exit(0);
 		}
 		tout = tout * 10.0E0;

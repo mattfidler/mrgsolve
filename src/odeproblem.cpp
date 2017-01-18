@@ -326,6 +326,10 @@ void odeproblem::advance(double tfrom, double tto) {
         iwork1, iwork2, iwork5, iwork6, iwork7, iwork8, iwork9,
         rwork1, rwork5, rwork6, rwork7, reinterpret_cast<void*>(this));
 
+  if(xistate < 0) {
+    neg_istate(xistate);
+    Rcpp::stop("Terminating the simulation.");
+  }
   this->call_derivs(&Neq, &tto, Y+1, Ydot);
 }
 
