@@ -41,13 +41,15 @@ public:
   
 protected :
 
-  int     xliwork, xlrwork,xistate;
+  double          rwork1, rwork5, rwork6, rwork7;
+  int             iwork1, iwork2, iwork5, iwork6, iwork7, iwork8, iwork9;
+
+  int     xistate;
   int     xitask,xiopt,xitol;
   int     Neq, Npar;
   int     xjt;
-  double  xatol,xrtol;
-  double* xrwork;
-  int*    xiwork;
+  double  xatol, xrtol;
+
   double* Y;
   double* Ydot;
 };

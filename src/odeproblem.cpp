@@ -308,27 +308,41 @@ void odeproblem::advance(double tfrom, double tto) {
     Rcpp::stop("mrgsolve: advan has invalid value.");
   }
   
-  
-  F77_CALL(dlsoda)(
-      &main_derivs,
-      &Neq,
-      Y,
-      &tfrom,
-      &tto,
-      &xitol,
-      &xrtol,
-      &xatol,
-      &xitask,
-      &xistate,
-      &xiopt,
-      xrwork,
-      &xlrwork,
-      xiwork,
-      &xliwork,
-      &Neq,
-      &xjt,
-      this
-  );
+  lsoda(&main_derivs, 
+        Neq, 
+        Y, 
+        &tfrom, 
+        tto, 
+        xitol, 
+        xrtol, 
+        xatol, 
+        xitask, 
+        &xistate, 
+        xiopt, 
+        xjt,
+        iwork1, iwork2, iwork5, iwork6, iwork7, iwork8, iwork9,
+        rwork1, rwork5, rwork6, rwork7, this);
+  // 
+  // F77_CALL(dlsoda)(
+  //     &main_derivs,
+  //     &Neq,
+  //     Y,
+  //     &tfrom,
+  //     &tto,
+  //     &xitol,
+  //     &xrtol,
+  //     &xatol,
+  //     &xitask,
+  //     &xistate,
+  //     &xiopt,
+  //     xrwork,
+  //     &xlrwork,
+  //     xiwork,
+  //     &xliwork,
+  //     &Neq,
+  //     &xjt,
+  //     this
+  // );
   
   this->call_derivs(&Neq, &tto, Y, Ydot);
 }
