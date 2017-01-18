@@ -68,10 +68,15 @@ typedef void deriv_func(MRGSOLVE_ODE_SIGNATURE);
 
 typedef void config_func(MRGSOLVE_CONFIG_SIGNATURE);
 
-typedef void main_deriv_func(double t,
-                             double* y, double* ydot,
-                             void* prob_);
+typedef void main_deriv_func(int* neq, 
+                             double* t,
+                             double* y,
+                             double* ydot,
+                             odeproblem* prob);
+
 typedef void    (*_lsoda_f) (double, double*, double*, void*);
+
+main_deriv_func main_derivs_f;
 
 deriv_func*  as_deriv_func( SEXP derivs);
 init_func*   as_init_func(  SEXP inits);
@@ -116,12 +121,13 @@ public:
   odeproblem(Rcpp::NumericVector param,
              Rcpp::NumericVector init,
              Rcpp::List funs,
-             int n_capture_);
+             int n_capture_,
+             int c_solver);
   
   virtual ~odeproblem();
   
   void advance(double tfrom, double tto);
-  void call_derivs(int *neq, double *t, double *y, double *ydot);
+  void call_derivs(double *t, double *y, double *ydot);
   void init(int pos, double value){Init_value[pos] = value;}
   double init(int pos){return Init_value[pos];}
   

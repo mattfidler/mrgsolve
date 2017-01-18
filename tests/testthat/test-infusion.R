@@ -25,7 +25,7 @@ test_that("Infusion with large rate and small amount", {
 
 ## Issue 43
 test_that("Infusion ends at the proper time", {
-  out <- mod %>% ev(amt=3000, rate=30,cmt=2) %>% mrgsim(end=200, delta=0.01)
+  out <- mod %>% ev(amt=3000, rate=30,cmt=2) %>% mrgsim(end=200, delta=0.01,c_solver=0)
   tmax <- with(as.data.frame(out), time[which(CENT == max(CENT))])
   expect_equal(tmax,100)
 })

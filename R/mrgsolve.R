@@ -241,6 +241,7 @@ tran_mrgsim <- function(x,
                         filbak=TRUE,
                         t2advance = FALSE,
                         tad = FALSE,
+                        c_solver = FALSE,
                         ...) {
   
   verbose <- x@verbose
@@ -328,6 +329,8 @@ tran_mrgsim <- function(x,
   parin$ptimes <- stime(ptime)
   parin$filbak <- filbak
   parin$tad <- tad
+  parin$c_solver <- as.integer(c_solver)
+ 
   if(any(x@capture =="tad") & tad) {
     stop("tad argument is true and 'tad' found in $CAPTURE",call.=FALSE); 
   }

@@ -34,7 +34,7 @@ void dosimeps(void* prob_) {
 odeproblem::odeproblem(Rcpp::NumericVector param,
                        Rcpp::NumericVector init,
                        Rcpp::List funs,
-                       int n_capture_) : odepack_dlsoda(param.size(),init.size()) {
+                       int n_capture_, int c_solver_) : odepack_dlsoda(param.size(),init.size(),c_solver_) {
   
   int npar_ = int(param.size());
   int neq_ = int(init.size());
@@ -62,7 +62,7 @@ odeproblem::odeproblem(Rcpp::NumericVector param,
   d.CFONSTOP = false;
   d.cmt = 0;
   d.amt = 0;
-
+  
   pred.assign(5,0.0);
   
   for(int i=0; i < npar_; ++i) Param[i] =       double(param[i]);
@@ -92,7 +92,7 @@ odeproblem::odeproblem(Rcpp::NumericVector param,
  */
 odeproblem::~odeproblem(){
   delete [] Param;
-  n_lsoda_terminate();
+  if(C_SOLVER==1) n_lsoda_terminate();
 }
 
 void odeproblem::neta(int n) {
@@ -114,20 +114,20 @@ void odeproblem::neps(int n) {
  * 
  */
 void odeproblem::y_init(int pos, double value) {
-  Y[pos+1] = value;
+  Y[pos+C_SOLVER] = value;
   Init_value[pos] = value;
 }
 
 void odeproblem::y_init(Rcpp::NumericVector x) {
   if(x.size() != Neq) Rcpp::stop("Initial vector is wrong size");
   for(int i = 0; i < x.size(); ++i) {
-    Y[i+1] = x[i];
+    Y[i+C_SOLVER] = x[i];
     Init_value[i] = x[i];
   }
 }
 
 void odeproblem::y_add(const unsigned int pos, const double& value) {
-  Y[pos+1] = Y[pos+1] + value; 
+  Y[pos+C_SOLVER] = Y[pos+C_SOLVER] + value; 
 }
 
 
@@ -143,11 +143,16 @@ void odeproblem::y_add(const unsigned int pos, const double& value) {
  */
 void main_derivs(double t, double* y, double* ydot, void* prob_) {
   odeproblem* prob = reinterpret_cast<odeproblem*>(prob_);
-  int neq = prob->neq();
-  prob->call_derivs(&neq,&t,y,ydot);  
+  prob->call_derivs(&t,y,ydot);  
 }
 
-void odeproblem::call_derivs(int *neq, double *t, double *y, double *ydot) {
+
+void main_derivs_f(int* neq, double* t, double* y, double* ydot, odeproblem* prob) {
+  prob->call_derivs(t,y,ydot);  
+}
+
+
+void odeproblem::call_derivs(double* t, double* y, double* ydot) {
   Derivs(t,y,ydot,Init_value,Param);
   for(int i = 0; i < Neq; ++i) {
     ydot[i] = (ydot[i] + R0[i])*On[i]; 
@@ -175,7 +180,7 @@ void odeproblem::init_call(const double& time) {
   Inits(Init_value,Y,Param,F,Alag,R,D,d,pred,simeta);
   
   for(int i=0; i < Neq; ++i) {
-    Y[i+1] = Init_value[i];
+    Y[i+C_SOLVER] = Init_value[i];
     Init_dummy[i] = Init_value[i];
   }
   
@@ -191,7 +196,7 @@ void odeproblem::init_call(const double& time) {
  */
 void odeproblem::init_call_record(const double& time) {
   d.time = time;
-  Inits(Init_dummy,Y+1,Param,F,Alag,R,D,d,pred,simeta);
+  Inits(Init_dummy,Y+C_SOLVER,Param,F,Alag,R,D,d,pred,simeta);
 }
 
 
@@ -199,7 +204,7 @@ void odeproblem::init_call_record(const double& time) {
  * 
  */
 void odeproblem::table_call() {
-  Table(Y+1,Init_dummy,Param,F,R,d,pred,Capture,simeps);  
+  Table(Y+C_SOLVER,Init_dummy,Param,F,R,d,pred,Capture,simeps);  
 }
 
 void odeproblem::config_call() {
@@ -310,28 +315,80 @@ void odeproblem::advance(double tfrom, double tto) {
     // If Advan isn't 13, it needs to be 1/2/3/4
     Rcpp::stop("mrgsolve: advan has invalid value.");
   }
-
-  lsoda(main_derivs, 
-        Neq, 
-        Y, 
-        &tfrom, 
-        tto, 
-        xitol, 
-        xrtol, 
-        xatol, 
-        xitask, 
-        &xistate, 
-        xiopt, 
-        xjt,
-        iwork1, iwork2, iwork5, iwork6, iwork7, iwork8, iwork9,
-        rwork1, rwork5, rwork6, rwork7, reinterpret_cast<void*>(this));
-
+  
+  if(C_SOLVER==1) {
+    
+    lsoda(main_derivs, 
+          Neq, 
+          Y, 
+          &tfrom, 
+          tto, 
+          xitol, 
+          xrtol, 
+          xatol, 
+          xitask, 
+          &xistate, 
+          xiopt, 
+          xjt,
+          iwork1, iwork2, iwork5, iwork6, iwork7, iwork8, iwork9,
+          rwork1, rwork5, rwork6, rwork7, reinterpret_cast<void*>(this));
+    
+  } else {
+    F77_CALL(dlsoda)(
+        &main_derivs_f,
+        &Neq,
+        Y,
+        &tfrom,
+        &tto,
+        &xitol,
+        &xxrtol,
+        &xxatol,
+        &xitask,
+        &xistate,
+        &xiopt,
+        xrwork,
+        &xlrwork,
+        xiwork,
+        &xliwork,
+        &Neq,
+        &xjt,
+        this
+    );
+  }
+  
+  
   if(xistate < 0) {
     neg_istate(xistate);
     Rcpp::stop("Terminating the simulation.");
   }
-  this->call_derivs(&Neq, &tto, Y+1, Ydot);
+  this->call_derivs(&tto, Y+C_SOLVER, Ydot);
 }
+
+
+
+// extern "C" {
+//   void F77_NAME(dlsoda) (
+//       main_deriv_func *derivs,
+//       int             *neq,
+//       double          *y,
+//       const double    *tfrom,
+//       const double    *tto,
+//       int             *itol,
+//       double          *rtol,
+//       double          *atol,
+//       int             *itask,
+//       int             *istate,
+//       int             *iopt,
+//       double          *rwork,
+//       int             *lrwork,
+//       int             *iwork,
+//       int             *liwork,
+//       int             *dum, // dummy jacobian
+//       int             *jt, // jacobian type
+//       odeproblem      *prob
+//   );
+// }
+
 
 void odeproblem::advan2(const double& tfrom, const double& tto) {
   
@@ -597,7 +654,7 @@ double PolyExp(const double& x,
       if (dx <= xinf) {
         for(i=0;i<n;++i) {
           result += a[i] * (1 - exp(-alpha[i]*xinf))*exp(-alpha[i]*(dx-xinf+tau)) /
-          (1-exp(-alpha[i]*tau)) / alpha[i] + a[i] * (1 - exp(-alpha[i]*dx)) / alpha[i];
+            (1-exp(-alpha[i]*tau)) / alpha[i] + a[i] * (1 - exp(-alpha[i]*dx)) / alpha[i];
         }
       }
       else {
@@ -696,7 +753,7 @@ Rcpp::List TOUCH_FUNS(const Rcpp::NumericVector& lparam,
   
   Rcpp::List ans;
   
-  odeproblem prob(lparam, linit, funs, capture.size());
+  odeproblem prob(lparam, linit, funs, capture.size(),0);
   prob.neta(Neta);
   prob.neps(Neps);
   prob.pass_envir(&envir);

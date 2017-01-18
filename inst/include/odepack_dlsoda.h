@@ -11,7 +11,7 @@ class odepack_dlsoda {
 
 public:
   
-  odepack_dlsoda(int npar_, int neq_);
+  odepack_dlsoda(int npar_, int neq_, int c_solver_);
   virtual ~odepack_dlsoda();
   
   void hmax(double value){rwork6 = value; if(value !=0) xiopt=1;}
@@ -25,36 +25,39 @@ public:
   int  itask(){return xitask;}
   void itask(int itask){xitask = itask;}
   void tol(double atol, double rtol);
-  
-  // double* rwork(){return xrwork;}
-  // void    rwork(int pos, double value){xrwork[pos] = value;}
-  // int*    iwork(){return xiwork;}
-  // void    iwork(int pos,int value){xiwork[pos] = value;}
-  //void    tcrit(double value){xrwork[0] = value;}
+  double* rwork(){return xrwork;}
+  void    rwork(int pos, double value){xrwork[pos] = value;}
+  int*    iwork(){return xiwork;}
+  void    iwork(int pos,int value){xiwork[pos] = value;}
+  void    tcrit(double value){xrwork[0] = value;}
   double* y(){return Y;}
-  void    y(const int pos, const double value){Y[pos+1] = value;}
-  double  y(const int pos){return Y[pos+1];}
+  void    y(const int pos, const double value){Y[pos+C_SOLVER] = value;}
+  double  y(const int pos){return Y[pos+C_SOLVER];}
   double* ydot(){return Ydot;}
-  
-  int     npar() {return Npar;}
+  int     npar(){return Npar;}
   int     neq(){return Neq;}
 
-  
 protected :
 
-  double          rwork1, rwork5, rwork6, rwork7;
-  int             iwork1, iwork2, iwork5, iwork6, iwork7, iwork8, iwork9;
-
-  int     xistate;
-  int     xitask,xiopt,xitol;
-  int     Neq, Npar;
-  int     xjt;
+  double rwork1, rwork5, rwork6, rwork7;
+  int iwork1, iwork2, iwork5, iwork6, iwork7, iwork8, iwork9;
+  int xistate;
+  int xitask,xiopt,xitol;
+  int Neq, Npar;
+  int xjt;
+  int xlrwork, xliwork;
+  
+  int C_SOLVER;
 
   double xatol[2];
   double xrtol[2];
+  double xxatol;
+  double xxrtol;
 
   double* Y;
   double* Ydot;
+  int* xiwork;
+  double* xrwork;
 };
 
 

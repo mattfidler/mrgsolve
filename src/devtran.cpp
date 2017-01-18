@@ -61,6 +61,9 @@ Rcpp::List DEVTRAN(const Rcpp::List parin,
   const bool filbak           = Rcpp::as<bool>   (parin["filbak"]);
   const double mindt          = Rcpp::as<double> (parin["mindt"]);
   const bool tad              = Rcpp::as<bool>   (parin["tad"]);
+  const int c_solver          = Rcpp::as<int>    (parin["c_solver"]);
+  
+  //if(c_solver==1) Rcpp::Rcout << "Using lsoda.c" <<  std::endl;
   
   // Create data objects from data and idata
   dataobject dat(data,parnames);
@@ -128,7 +131,7 @@ Rcpp::List DEVTRAN(const Rcpp::List parin,
   const unsigned int n_capture  = capture.size()-1;
   
   // Create odeproblem object  
-  odeproblem *prob  = new odeproblem(inpar, init, funs, capture.at(0));
+  odeproblem *prob  = new odeproblem(inpar, init, funs, capture.at(0),c_solver);
   prob->omega(OMEGA);
   prob->sigma(SIGMA);
   prob->copy_parin(parin);

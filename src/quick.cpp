@@ -54,7 +54,7 @@ Rcpp::NumericMatrix QUICKSIM(const Rcpp::List& parin,
   
   const unsigned int capn = capturei.at(0);
   
-  odeproblem* prob = new odeproblem(param, init, funs, capn);
+  odeproblem* prob = new odeproblem(param, init, funs, capn,0);
   prob->copy_parin(parin);
   prob->neta(nre[0]);
   prob->neps(nre[1]);
@@ -281,7 +281,7 @@ Rcpp::NumericMatrix PREDSIM(const Rcpp::List& parin,
   dataobject idat(idata,parnames);
   
   const int capn = capturei.at(0);
-  odeproblem prob(param, init, funs, capn);
+  odeproblem prob(param, init, funs, capn,0);
   Rcpp::NumericMatrix ans(idata.nrow(),capn);
   
   int k; 

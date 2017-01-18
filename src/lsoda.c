@@ -1,5 +1,13 @@
 #include <R.h>
 /*
+ * METRUM kyleb 01/18/2017 changed fprintf(stderr to REprintf
+ * METRUM kyleb 01/18/2017 changed printf to Rprintf
+ * 
+ * 
+ */
+
+
+/*
   This is a C version of the LSODA library. I acquired the original
   source code from this web page:
 
@@ -2841,9 +2849,9 @@ int main(void)
 		lsoda(fex, neq, y, &t, tout, itol, rtol, atol, itask, &istate, iopt, jt,
 		      iwork1, iwork2, iwork5, iwork6, iwork7, iwork8, iwork9,
 		      rwork1, rwork5, rwork6, rwork7, 0);
-		//printf(" at t= %12.4e y= %14.6e %14.6e %14.6e\n", t, y[1], y[2], y[3]);
+		  Rprintf(" at t= %12.4e y= %14.6e %14.6e %14.6e\n", t, y[1], y[2], y[3]);
 		if (istate <= 0) {
-			//printf("error istate = %d\n", istate);
+			Rprintf("error istate = %d\n", istate);
 			exit(0);
 		}
 		tout = tout * 10.0E0;
