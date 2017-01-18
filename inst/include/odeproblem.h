@@ -68,10 +68,10 @@ typedef void deriv_func(MRGSOLVE_ODE_SIGNATURE);
 
 typedef void config_func(MRGSOLVE_CONFIG_SIGNATURE);
 
-typedef void main_deriv_func(int* neq, double* t,
-                             double* y,double* ydot,
-                             odeproblem* prob);
-
+typedef void main_deriv_func(double t,
+                             double* y, double* ydot,
+                             void* prob_);
+typedef void    (*_lsoda_f) (double, double*, double*, void*);
 
 deriv_func*  as_deriv_func( SEXP derivs);
 init_func*   as_init_func(  SEXP inits);
@@ -79,8 +79,28 @@ table_func*  as_table_func( SEXP table);
 config_func* as_config_func(SEXP config);
 
 extern "C"{DL_FUNC tofunptr(SEXP a);}
+extern "C" {void n_lsoda_terminate(void);}
+extern "C" {
+  void lsoda(_lsoda_f main_derivs, 
+             int Neq, 
+             double* Y, 
+             double* tfrom, 
+             double tto, 
+             int xitol, 
+             double* xrtol, 
+             double* xatol, 
+             int xitask, 
+             int* xistate, 
+             int xiopt, 
+             int xjt,
+             int iwork1, int iwork2, int iwork5, int iwork6, int iwork7, 
+             int iwork8, int iwork9,
+             double rwork1, double rwork5, double rwork6, double rwork7, 
+             void* prob);
+}
 
-main_deriv_func main_derivs;
+//main_deriv_func main_derivs;
+//_lsoda_f main_derivs;
 void neg_istate(int istate);
 
 template<typename T,typename type2> void tofunptr(T b, type2 a) {
@@ -109,7 +129,7 @@ public:
   
   void init_call(const double& time);
   void init_call_record(const double& time);
-
+  
   void y_init(int pos, double value);
   void y_init(Rcpp::NumericVector x);
   void y_add(const unsigned int pos, const double& value);
@@ -125,7 +145,7 @@ public:
   
   arma::mat mv_omega(int n);
   arma::mat mv_sigma(int n);
-
+  
   void pass_envir(Rcpp::Environment* x){d.envir=reinterpret_cast<void*>(x);};
   
   bool CFONSTOP(){return d.CFONSTOP;}
@@ -166,7 +186,7 @@ public:
   void time(double time_){d.time = time_;}
   void newind(unsigned int newind_){d.newind = newind_;}
   unsigned int newind(){return d.newind;}
-
+  
   void advan(int x);
   int  advan(){return Advan;}
   void advan2(const double& tfrom, const double& tto);
@@ -187,7 +207,7 @@ public:
   
   void copy_parin(const Rcpp::List& parin);
   void copy_funs(const Rcpp::List& funs);
-
+  
 protected:
   
   //! parameters
@@ -235,14 +255,14 @@ protected:
   
   resim simeta;
   resim simeps;
-
+  
   arma::mat Omega;
   arma::mat Sigma;
-    
+  
   dvec pred;
   dvec Capture;
   
-
+  
   
 };
 

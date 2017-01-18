@@ -14,11 +14,11 @@ public:
   odepack_dlsoda(int npar_, int neq_);
   virtual ~odepack_dlsoda();
   
-  void hmax(double value){xrwork[5] = value; if(value !=0) xiopt=1;}
-  void hmin(double value){xrwork[6] = value;  if(value !=0) xiopt=1;}
-  void ixpr(int value){xiwork[4] = value; if(value !=0) xiopt=1;}
-  void maxsteps(int value){xiwork[5] = value; if(value !=0) xiopt=1;}
-  void mxhnil(int value){xiwork[6] = value; if (value !=0) xiopt=1;}
+  void hmax(double value){rwork6 = value; if(value !=0) xiopt=1;}
+  void hmin(double value){rwork7 = value;  if(value !=0) xiopt=1;}
+  void ixpr(int value){iwork5 = value; if(value !=0) xiopt=1;}
+  void maxsteps(int value){iwork6 = value; if(value !=0) xiopt=1;}
+  void mxhnil(int value){iwork7 = value; if (value !=0) xiopt=1;}
   int  istate(){return xistate;}
   void istate(int value){xistate = value;}
   void lsoda_init(){xistate=1;}
@@ -26,11 +26,11 @@ public:
   void itask(int itask){xitask = itask;}
   void tol(double atol, double rtol);
   
-  double* rwork(){return xrwork;}
-  void    rwork(int pos, double value){xrwork[pos] = value;}
-  int*    iwork(){return xiwork;}
-  void    iwork(int pos,int value){xiwork[pos] = value;}
-  void    tcrit(double value){xrwork[0] = value;}
+  // double* rwork(){return xrwork;}
+  // void    rwork(int pos, double value){xrwork[pos] = value;}
+  // int*    iwork(){return xiwork;}
+  // void    iwork(int pos,int value){xiwork[pos] = value;}
+  //void    tcrit(double value){xrwork[0] = value;}
   double* y(){return Y;}
   void    y(const int pos, const double value){Y[pos] = value;}
   double  y(const int pos){return Y[pos];}

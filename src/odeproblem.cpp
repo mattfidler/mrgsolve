@@ -92,6 +92,7 @@ odeproblem::odeproblem(Rcpp::NumericVector param,
  */
 odeproblem::~odeproblem(){
   delete [] Param;
+  n_lsoda_terminate();
 }
 
 void odeproblem::neta(int n) {
@@ -140,8 +141,10 @@ void odeproblem::y_add(const unsigned int pos, const double& value) {
  * 
  * 
  */
-void main_derivs(int *neq, double *t, double *y, double *ydot, odeproblem *prob) {
-  prob->call_derivs(neq,t,y,ydot);  
+void main_derivs(double t, double* y, double* ydot, void* prob_) {
+  odeproblem* prob = reinterpret_cast<odeproblem*>(prob_);
+  int neq = prob->neq();
+  prob->call_derivs(&neq,&t,y,ydot);  
 }
 
 void odeproblem::call_derivs(int *neq, double *t, double *y, double *ydot) {
@@ -308,20 +311,20 @@ void odeproblem::advance(double tfrom, double tto) {
     Rcpp::stop("mrgsolve: advan has invalid value.");
   }
   
-  lsoda(&main_derivs, 
+  lsoda(main_derivs, 
         Neq, 
         Y, 
         &tfrom, 
         tto, 
         xitol, 
-        xrtol, 
-        xatol, 
+        &xrtol, 
+        &xatol, 
         xitask, 
         &xistate, 
         xiopt, 
         xjt,
         iwork1, iwork2, iwork5, iwork6, iwork7, iwork8, iwork9,
-        rwork1, rwork5, rwork6, rwork7, this);
+        rwork1, rwork5, rwork6, rwork7, reinterpret_cast<void*>(this));
   // 
   // F77_CALL(dlsoda)(
   //     &main_derivs,
