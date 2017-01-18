@@ -879,8 +879,8 @@ lsoda(f, neq, y, t, tout, itol, rtol, atol, itask, istate,
 
 {
 	int             mxstp0 = 500, mxhnl0 = 10;
-
-	int             i, iflag, lenyh, ihit;
+  int             ihit = 0;
+	int             i, iflag, lenyh;
 	double          atoli, ayi, big, h0, hmax, hmx, rh, rtoli, tcrit, tdist, tnext, tol,
 	                tolsf, tp, size, sum, w0;
 

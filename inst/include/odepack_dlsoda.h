@@ -32,8 +32,8 @@ public:
   // void    iwork(int pos,int value){xiwork[pos] = value;}
   //void    tcrit(double value){xrwork[0] = value;}
   double* y(){return Y;}
-  void    y(const int pos, const double value){Y[pos] = value;}
-  double  y(const int pos){return Y[pos];}
+  void    y(const int pos, const double value){Y[pos+1] = value;}
+  double  y(const int pos){return Y[pos+1];}
   double* ydot(){return Ydot;}
   
   int     npar() {return Npar;}

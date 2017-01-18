@@ -114,20 +114,20 @@ void odeproblem::neps(int n) {
  * 
  */
 void odeproblem::y_init(int pos, double value) {
-  Y[pos] = value;
+  Y[pos+1] = value;
   Init_value[pos] = value;
 }
 
 void odeproblem::y_init(Rcpp::NumericVector x) {
   if(x.size() != Neq) Rcpp::stop("Initial vector is wrong size");
   for(int i = 0; i < x.size(); ++i) {
-    Y[i] = x[i];
+    Y[i+1] = x[i];
     Init_value[i] = x[i];
   }
 }
 
 void odeproblem::y_add(const unsigned int pos, const double& value) {
-  Y[pos] = Y[pos] + value; 
+  Y[pos+1] = Y[pos+1] + value; 
 }
 
 
@@ -175,7 +175,7 @@ void odeproblem::init_call(const double& time) {
   Inits(Init_value,Y,Param,F,Alag,R,D,d,pred,simeta);
   
   for(int i=0; i < Neq; ++i) {
-    Y[i] = Init_value[i];
+    Y[i+1] = Init_value[i];
     Init_dummy[i] = Init_value[i];
   }
   
@@ -329,7 +329,7 @@ void odeproblem::advance(double tfrom, double tto) {
         iwork1, iwork2, iwork5, iwork6, iwork7, iwork8, iwork9,
         rwork1, rwork5, rwork6, rwork7, reinterpret_cast<void*>(this));
 
-  this->call_derivs(&Neq, &tto, Y, Ydot);
+  this->call_derivs(&Neq, &tto, Y+1, Ydot);
 }
 
 void odeproblem::advan2(const double& tfrom, const double& tto) {

@@ -99,8 +99,6 @@ extern "C" {
              void* prob);
 }
 
-//main_deriv_func main_derivs;
-//_lsoda_f main_derivs;
 void neg_istate(int istate);
 
 template<typename T,typename type2> void tofunptr(T b, type2 a) {
@@ -284,10 +282,5 @@ Rcpp::List TOUCH_FUNS(const Rcpp::NumericVector& lparam,
                       const Rcpp::CharacterVector& capture,
                       const Rcpp::List& funs);
 
-// SEXP ODEPTR(const Rcpp::NumericVector& lparam, 
-//                               const Rcpp::NumericVector& linit,
-//                               int Neta, int Neps,
-//                               const Rcpp::CharacterVector& capture,
-//                               const Rcpp::List& funs);
 
 #endif
